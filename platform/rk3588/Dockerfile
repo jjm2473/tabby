@@ -1,0 +1,20 @@
+FROM ghcr.io/jjm2473/tabby-vulkan:v0.25.0-dev-d11fe33
+
+RUN apt-get update && \
+    apt-get install -y --no-install-recommends \
+        libdrm2 \
+        libwayland-client0 \
+        libwayland-server0 \
+        && \
+    apt-get clean && \
+    rm -rf /var/lib/apt/lists/*
+
+RUN curl -o libmali.deb https://repo.rock-chips.com/edge/debian-release-v2.0.0/pool/main/r/rockchip-mali/rockchip-mali_1.9-12_arm64.deb && \
+    mkdir debtmp && \
+    dpkg-deb -x libmali.deb debtmp && \
+    cp -a debtmp/usr/lib/aarch64-linux-gnu/libmali-valhall-g610-g6p0-wayland-gbm-vulkan.so /usr/lib/aarch64-linux-gnu/ && \
+    rm -rf libmali.deb debtmp
+
+RUN ln -s /usr/lib/aarch64-linux-gnu/libmali-valhall-g610-g6p0-wayland-gbm-vulkan.so /usr/lib/aarch64-linux-gnu/libmali.so
+
+COPY mali.json /etc/vulkan/icd.d/mali.json
